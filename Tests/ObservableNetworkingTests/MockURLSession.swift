@@ -49,7 +49,7 @@ class MockURLSession: Session {
     @available(iOS 13.0, *)
     func dataTaskPublisher<T>(for request: URLRequest) -> T where T : TaskPublisher {
         lastURL = request.url
-        return MockDataTaskPublisher() as! T
+        return MockDataTaskPublisher().eraseToAnyPublisher() as! T
     }
 
     private func createCookieHeader(for url: URL?) -> [String : String] {

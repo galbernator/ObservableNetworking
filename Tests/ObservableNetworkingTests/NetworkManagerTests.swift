@@ -50,7 +50,9 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    func testPostRequestInEnvironments() {
+    // MARK: - RxSwift Tests
+
+    func testRXPostRequestInEnvironments() {
         MockEnvironment.allCases.forEach { environment in
             let endpoint = "something"
             let session = MockURLSession()
@@ -203,7 +205,165 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    //TODO: Add tests for Combine methods
+    // MARK: - Combine Tests
+
+    @available(iOS 13.0, *)
+    func testCombinePostRequetInEnvironments() {
+        MockEnvironment.allCases.forEach { environment in
+            let endpoint = "combine"
+            let session = MockURLSession()
+            let networkManager = NetworkManager(environment: environment, session: session, sessionCookieName: "Value")
+
+            let _ = networkManager.request(method: .post, endpoint: endpoint)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        XCTFail("Error: \(error.localizedDescription)")
+                    case .finished:
+                        return
+                    }
+                }, receiveValue: { _ in
+                    return
+                })
+
+            guard let url = URL(string: "\(environment.scheme)://\(environment.host)/\(environment.path)\(endpoint)") else {
+                XCTFail("Invalid URL")
+                return
+            }
+
+            XCTAssert(session.lastURL == url)
+        }
+    }
+
+    @available(iOS 13.0, *)
+    func testCombineGetRequestInEnvironments() {
+        MockEnvironment.allCases.forEach { environment in
+            let params = [ "userID": "1234567"]
+            let endpoint = "something"
+            let session = MockURLSession()
+            let networkManager = NetworkManager(environment: environment, session: session)
+
+            let _ = networkManager.request(method: .get, endpoint: endpoint, parameters: params)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        XCTFail("Error: \(error.localizedDescription)")
+                    case .finished:
+                        return
+                    }
+                }, receiveValue: { _ in
+                    return
+                })
+
+            guard let url = URL(string: "\(environment.scheme)://\(environment.host)/\(environment.path)\(endpoint)?\(queryString(from: params))") else {
+                XCTFail("Invalid URL")
+                return
+            }
+
+            XCTAssert(session.lastURL == url)
+        }
+    }
+
+    @available(iOS 13.0, *)
+    func testCombineAuthenticatedPostFaileWithNoCookie() {
+        MockEnvironment.allCases.forEach { environment in
+            let endpoint = "crashtastic"
+            let session = MockURLSession()
+            session.requiresAuthentication = true
+            let networkManager = NetworkManager(environment: environment, session: session)
+
+            let _ = networkManager.request(method: .post, endpoint: endpoint)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                         XCTAssertEqual(error.localizedDescription, NetworkError.unauthorized.localizedDescription)
+                    case .finished:
+                        XCTFail("Test should have returned an error")
+                    }
+                }, receiveValue: { _ in
+                    return
+                })
+        }
+    }
+
+    @available(iOS 13.0, *)
+    func testCombineAuthenticatedPostRequestInEnvironments() {
+        MockEnvironment.allCases.forEach { environment in
+            let endpoint = "something"
+            let session = MockURLSession()
+            let networkManager = NetworkManager(environment: environment, session: session, sessionCookieName: "Value")
+
+            session.requiresAuthentication = false
+            // Send an initial request to make sett the cookie
+            let _ = networkManager.request(method: .post, endpoint: "login")
+                .sink(receiveCompletion: { _ in
+                    return
+                }) { _ in
+                    return
+                }
+
+            session.requiresAuthentication = true
+
+            let _ = networkManager.authenticatedRequest(method: .post, endpoint: endpoint)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        XCTFail("Error: \(error.localizedDescription)")
+                    case .finished:
+                        return
+                    }
+                }, receiveValue: { data in
+                    XCTAssertNotNil(data)
+                })
+
+            guard let url = URL(string: "\(environment.scheme)://\(environment.host)/\(environment.path)\(endpoint)") else {
+                XCTFail("Invalid URL")
+                return
+            }
+
+            XCTAssert(session.lastURL == url)
+        }
+    }
+
+    @available(iOS 13.0, *)
+    func testCombineAuthenticatedGetRequestInEnvironments() {
+        MockEnvironment.allCases.forEach { environment in
+            let params = [ "userID": "1234567"]
+            let endpoint = "something"
+            let session = MockURLSession()
+            let networkManager = NetworkManager(environment: environment, session: session, sessionCookieName: "Value")
+
+            session.requiresAuthentication = false
+            // Send an initial request to make sett the cookie
+            let _ = networkManager.request(method: .post, endpoint: "login")
+                .sink(receiveCompletion: { _ in
+                    return
+                }) { _ in
+                    return
+                }
+
+            session.requiresAuthentication = true
+
+            let _ = networkManager.authenticatedRequest(method: .get, endpoint: endpoint, parameters: params)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        XCTFail("Error: \(error.localizedDescription)")
+                    case .finished:
+                        return
+                    }
+                }, receiveValue: { data in
+                    XCTAssertNotNil(data)
+                })
+
+            guard let url = URL(string: "\(environment.scheme)://\(environment.host)/\(environment.path)\(endpoint)?\(queryString(from: params))") else {
+                XCTFail("Invalid URL")
+                return
+            }
+
+            XCTAssert(session.lastURL == url)
+        }
+    }
 
     // MARK: - Test Helpers
 
