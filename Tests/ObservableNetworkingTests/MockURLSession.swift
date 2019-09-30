@@ -7,6 +7,7 @@
 
 import Foundation
 import ObservableNetworking
+import Combine
 
 class MockURLSession: Session {
 
@@ -45,6 +46,12 @@ class MockURLSession: Session {
         return dataTask
     }
 
+    @available(iOS 13.0, *)
+    func dataTaskPublisher<T>(for request: URLRequest) -> T where T : TaskPublisher {
+        lastURL = request.url
+        return MockDataTaskPublisher().eraseToAnyPublisher() as! T
+    }
+
     private func createCookieHeader(for url: URL?) -> [String : String] {
         guard let cookieURL = url else { return [:] }
 
@@ -69,4 +76,28 @@ class MockURLSessionDataTask: DataTask {
     func resume() {
         resumeWasCalled = true
     }
+}
+
+class MockDataTaskPublisher: TaskPublisher {
+    typealias Output = Data
+    typealias Failure = NetworkError
+
+    @available(iOS 13.0, *)
+    func receive<S>(subscriber: S) where S : Subscriber, MockDataTaskPublisher.Failure == S.Failure, MockDataTaskPublisher.Output == S.Input {}
+}
+
+@available(iOS 13.0, *)
+extension Data: Subscriber {
+    public typealias Input = Self
+    public typealias Failure = NetworkError
+
+    public var combineIdentifier: CombineIdentifier {
+        CombineIdentifier()
+    }
+
+    public func receive(subscription: Subscription) {}
+
+    public func receive(completion: Subscribers.Completion<NetworkError>) {}
+
+    public func receive(_ input: Data) -> Subscribers.Demand { .unlimited }
 }

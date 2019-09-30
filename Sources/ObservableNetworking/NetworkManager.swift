@@ -7,6 +7,7 @@
 
 import Foundation
 import RxSwift
+import Combine
 
 public final class NetworkManager: Network {
     typealias Header = [String : String]
@@ -47,6 +48,16 @@ public final class NetworkManager: Network {
         dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers), requiresAuthentication: true)
     }
 
+    @available(iOS 13.0, *)
+    public func request(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
+           dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: defaultHeaders(headers))
+    }
+
+    @available(iOS 13.0, *)
+    public func authenticatedRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
+           dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers))
+    }
+
     // MARK: - Helpers
 
     private func dataRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]?, headers: Header?, requiresAuthentication: Bool = false) -> Observable<Result<Data, NetworkError>> {
@@ -77,6 +88,20 @@ public final class NetworkManager: Network {
 
         dataTask.resume()
         return result
+    }
+
+    @available(iOS 13.0, *)
+    private func dataRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]?, headers: Header?) -> AnyPublisher<Data, NetworkError> {
+        guard let request = generateRequest(method: method, endpoint: endpoint, parameters: parameters, headers: headers) else {
+                let error = NetworkError.unexpected
+                return Fail(error: error).eraseToAnyPublisher()
+            }
+
+        let taskPublisher: AnyPublisher<Data, NetworkError> = session.dataTaskPublisher(for: request)
+        return taskPublisher
+            .mapError { .failure(message: $0.localizedDescription) }
+            .flatMap(maxPublishers: .max(1)) { CurrentValueSubject<Data, NetworkError>($0) }
+            .eraseToAnyPublisher()
     }
 
     private func generateRequest(method: HTTPMethod, endpoint: String, parameters: [String: Any]?, headers: [String: String]?) -> URLRequest? {
