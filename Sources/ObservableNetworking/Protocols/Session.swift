@@ -13,7 +13,7 @@ public protocol Session {
     typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
     func dataTask(with request: NSURLRequest, completionHandler: @escaping DataTaskResult) -> DataTask
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func dataTaskPublisher<T: TaskPublisher>(for request: NSURLRequest) -> T
 }
 
@@ -23,7 +23,7 @@ extension URLSession: Session {
         dataTask(with: request as URLRequest, completionHandler: completionHandler) as DataTask
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func dataTaskPublisher<T: TaskPublisher>(for request: NSURLRequest) -> T {
         dataTaskPublisher(for: request as URLRequest) as! T
     }
@@ -38,13 +38,13 @@ public protocol DataTask {
 extension URLSessionDataTask: DataTask {}
 
 /// Protocol that allows dependecy injection for the express purpose of mocking `URLSession` during testing. This should not be used elsewhere
-@available(iOS 13.0, *)
+@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
 public protocol TaskPublisher: Publisher {}
 
 // Make DataTaskPublisher conform to TaskPublisher protocol
-@available(iOS 13.0, *)
+@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
 extension URLSession.DataTaskPublisher: TaskPublisher {}
 
 // Make AnyPublisher conform to TaskPublisher protocol
-@available(iOS 13.0, *)
+@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
 extension AnyPublisher: TaskPublisher {}

@@ -48,12 +48,12 @@ public final class NetworkManager: Network {
         dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers), requiresAuthentication: true)
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func request(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
            dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: defaultHeaders(headers))
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func authenticatedRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
            dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers))
     }
@@ -90,7 +90,7 @@ public final class NetworkManager: Network {
         return result
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     private func dataRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]?, headers: Header?) -> AnyPublisher<Data, NetworkError> {
         guard let request = generateRequest(method: method, endpoint: endpoint, parameters: parameters, headers: headers) else {
                 let error = NetworkError.unexpected
