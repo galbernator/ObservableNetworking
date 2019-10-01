@@ -46,7 +46,7 @@ class MockURLSession: Session {
         return dataTask
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func dataTaskPublisher<T>(for request: NSURLRequest) -> T where T : TaskPublisher {
         lastURL = request.url
         return MockDataTaskPublisher().eraseToAnyPublisher() as! T
@@ -82,11 +82,11 @@ class MockDataTaskPublisher: TaskPublisher {
     typealias Output = Data
     typealias Failure = NetworkError
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func receive<S>(subscriber: S) where S : Subscriber, MockDataTaskPublisher.Failure == S.Failure, MockDataTaskPublisher.Output == S.Input {}
 }
 
-@available(iOS 13.0, *)
+@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
 extension Data: Subscriber {
     public typealias Input = Self
     public typealias Failure = NetworkError

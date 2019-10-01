@@ -207,7 +207,7 @@ final class NetworkManagerTests: XCTestCase {
 
     // MARK: - Combine Tests
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func testCombinePostRequetInEnvironments() {
         MockEnvironment.allCases.forEach { environment in
             let endpoint = "combine"
@@ -235,7 +235,7 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func testCombineGetRequestInEnvironments() {
         MockEnvironment.allCases.forEach { environment in
             let params = [ "userID": "1234567"]
@@ -264,7 +264,7 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func testCombineAuthenticatedPostFaileWithNoCookie() {
         MockEnvironment.allCases.forEach { environment in
             let endpoint = "crashtastic"
@@ -286,7 +286,7 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func testCombineAuthenticatedPostRequestInEnvironments() {
         MockEnvironment.allCases.forEach { environment in
             let endpoint = "something"
@@ -325,7 +325,7 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     func testCombineAuthenticatedGetRequestInEnvironments() {
         MockEnvironment.allCases.forEach { environment in
             let params = [ "userID": "1234567"]
