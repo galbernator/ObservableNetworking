@@ -47,7 +47,7 @@ class MockURLSession: Session {
     }
 
     @available(iOS 13.0, *)
-    func dataTaskPublisher<T>(for request: URLRequest) -> T where T : TaskPublisher {
+    func dataTaskPublisher<T>(for request: NSURLRequest) -> T where T : TaskPublisher {
         lastURL = request.url
         return MockDataTaskPublisher().eraseToAnyPublisher() as! T
     }
