@@ -97,10 +97,8 @@ public final class NetworkManager: Network {
                 return Fail(error: error).eraseToAnyPublisher()
             }
 
-        let taskPublisher: AnyPublisher<Data, NetworkError> = session.dataTaskPublisher(for: request as NSURLRequest)
-        return taskPublisher
+        return session.dataTaskPublisher(for: request as NSURLRequest)
             .mapError { .failure(message: $0.localizedDescription) }
-            .flatMap(maxPublishers: .max(1)) { CurrentValueSubject<Data, NetworkError>($0) }
             .eraseToAnyPublisher()
     }
 

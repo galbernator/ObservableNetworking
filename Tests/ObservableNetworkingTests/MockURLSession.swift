@@ -47,9 +47,9 @@ class MockURLSession: Session {
     }
 
     @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
-    func dataTaskPublisher<T>(for request: NSURLRequest) -> T where T : TaskPublisher {
+    func dataTaskPublisher(for request: NSURLRequest) -> AnyPublisher<Data, NetworkError> {
         lastURL = request.url
-        return MockDataTaskPublisher().eraseToAnyPublisher() as! T
+        return MockDataTaskPublisher().eraseToAnyPublisher()
     }
 
     private func createCookieHeader(for url: URL?) -> [String : String] {
@@ -78,7 +78,7 @@ class MockURLSessionDataTask: DataTask {
     }
 }
 
-class MockDataTaskPublisher: TaskPublisher {
+class MockDataTaskPublisher: Publisher {
     typealias Output = Data
     typealias Failure = NetworkError
 
