@@ -19,10 +19,13 @@ public protocol Session {
 
 // Make URLSession connform to Session protocol
 extension URLSession: Session {
+
+    /// Creates a task that retrieves the contents of a URL based on the specified URL request object, and calls a handler upon completion.
     public func dataTask(with request: NSURLRequest, completionHandler: @escaping DataTaskResult) -> DataTask {
         dataTask(with: request as URLRequest, completionHandler: completionHandler) as DataTask
     }
 
+    /// Returns a publisher that wraps a URL session data task for a given NSURLRequest.
     @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func dataTaskPublisher(for request: NSURLRequest) -> AnyPublisher<Data, NetworkError> {
         dataTaskPublisher(for: request as URLRequest)

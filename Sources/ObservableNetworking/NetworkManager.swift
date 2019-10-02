@@ -40,19 +40,39 @@ public final class NetworkManager: Network {
 
     // MARK: - Network
 
+    /// Make a network request that does not require authentication
+    /// - Parameter method: The HTTPMethod of the request
+    /// - Parameter endpoint: The endpoint of the request
+    /// - Parameter parameters: The parameters to be added to either the HTTP body or as query parameters
+    /// - Parameter headers: The headers to be added to the request
     public func request(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> Observable<Result<Data, NetworkError>> {
         dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: defaultHeaders(headers))
     }
-       
+
+    /// Make an authenticated network request. The authentication cookie must be saved prior to this call, or the call will fail.
+    /// - Parameter method: The HTTPMethod of the request
+    /// - Parameter endpoint: The endpoint of the request
+    /// - Parameter parameters: The parameters to be added to either the HTTP body or as query parameters
+    /// - Parameter headers: The headers to be added to the request. The authentication cookie will automatically be added without need to pass it in.
     public func authenticatedRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> Observable<Result<Data, NetworkError>> {
         dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers), requiresAuthentication: true)
     }
 
+    /// Make a network request that does not require authentication
+    /// - Parameter method: The HTTPMethod of the request
+    /// - Parameter endpoint: The endpoint of the request
+    /// - Parameter parameters: The parameters to be added to either the HTTP body or as query parameters
+    /// - Parameter headers: The headers to be added to the request
     @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func request(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
            dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: defaultHeaders(headers))
     }
 
+    /// Make an authenticated network request. The authentication cookie must be saved prior to this call, or the call will fail.
+    /// - Parameter method: The HTTPMethod of the request
+    /// - Parameter endpoint: The endpoint of the request
+    /// - Parameter parameters: The parameters to be added to either the HTTP body or as query parameters
+    /// - Parameter headers: The headers to be added to the request. The authentication cookie will automatically be added without need to pass it in.
     @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.0, *)
     public func authenticatedRequest(method: HTTPMethod, endpoint: String, parameters: [String : Any]? = nil, headers: [String : String]? = nil) -> AnyPublisher<Data, NetworkError> {
            dataRequest(method: method, endpoint: endpoint, parameters: parameters, headers: authenticatedHeaders(headers))
@@ -111,7 +131,7 @@ public final class NetworkManager: Network {
         switch method {
         case .get:
             urlString += "?\(queryString(for: parameters))"
-        case .post:
+        case .post, .put, .patch:
             httpBody = generateHTTPBody(from: parameters)
         default:
             break
@@ -173,9 +193,9 @@ public final class NetworkManager: Network {
     }
 
     private func authenticatedHeaders(_ headers: [String: String]?) -> Header {
-        guard let cookie = authCookie else { return Header() }
-
         let headerDefaults = defaultHeaders(headers)
+        guard let cookie = authCookie else { return headerDefaults }
+
         let authHeader = HTTPCookie.requestHeaderFields(with: [cookie])
         guard let merged = merge(headerDefaults, with: authHeader) as? Header
         else {
