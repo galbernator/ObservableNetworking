@@ -5,6 +5,14 @@ A simple and flexible networking library that allows the use of RxSwift and Comb
 
 ## How to use
 
+### Add the Swift Package
+
+1. Open your project and select "Swift Packages" -> "Add Package Dependency..." from the "File" menu
+2. Enter `https://github.com/galbernator/ObservableNetworking.git` in the search field and click "Next"
+3. Select the appropriate rule for your app and click "Next"
+4. Update targets if necessary, then click "Finish"
+5. Do a happy dance because your networking is about to get all sorts of simple!
+
 ### Set up the Environment
 
 To get started, the framework needs to know a little about the possible environments which can be accomplished by defining an `enum` that conforms to `NetworkEnvironment`. This will allow the framework to build the desired network requests and URLs it needs.
